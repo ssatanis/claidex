@@ -1,0 +1,24 @@
+# Production override — use with: docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+version: '3.9'
+
+services:
+  neo4j:
+    restart: unless-stopped
+    environment:
+      NEO4J_dbms_memory_heap_max__size: 8G
+
+  postgres:
+    restart: unless-stopped
+
+  redis:
+    restart: unless-stopped
+
+  # Optional: add backend/frontend services for full stack deploy
+  # backend:
+  #   build: ../backend
+  #   restart: unless-stopped
+  #   depends_on: [neo4j, postgres, redis]
+  # frontend:
+  #   build: ../frontend
+  #   restart: unless-stopped
+  #   depends_on: [backend]

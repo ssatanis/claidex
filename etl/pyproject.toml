@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "claidex-etl"
+version = "0.1.0"
+description = "Claidex ETL pipeline"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0",
+    "pandas>=2.0.0",
+    "pyarrow>=14.0.0",
+    "psycopg2-binary>=2.9.0",
+    "neo4j>=5.0.0",
+    "python-dotenv>=1.0.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ingest*", "transform*", "load*", "schemas*"]
