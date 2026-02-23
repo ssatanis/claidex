@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Sidebar } from '@/components/layout/Sidebar';
+import { TopBar } from '@/components/layout/TopBar';
+import { ClaideXAssistant } from '@/components/ClaideXAssistant';
 
 export const metadata: Metadata = {
-  title: 'Claidex',
-  description: 'Healthcare provider and entity data',
+  title: 'ClaideX Provider Case Investigation',
+  description: 'Premium B2B healthcare analytics platform',
 };
 
 export default function RootLayout({
@@ -13,7 +16,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <body className="flex h-screen w-full overflow-hidden bg-background font-sans text-foreground antialiased">
+        <Sidebar />
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <TopBar />
+          <main className="flex-1 overflow-auto bg-slate-50/50 p-6 md:p-8">
+            {children}
+          </main>
+          <ClaideXAssistant />
+        </div>
+      </body>
     </html>
   );
 }
