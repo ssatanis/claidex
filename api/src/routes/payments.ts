@@ -85,7 +85,6 @@ paymentsRouter.get(
     try {
       // 1) Try Neo4j for payments
       let payments: PaymentSummary[] = [];
-      let source = 'neo4j';
 
       try {
         const providerExists = await runCypher<{ exists: boolean }>(
@@ -121,7 +120,6 @@ paymentsRouter.get(
         const pgProvider = await queryPg<{ npi: string }>('SELECT npi FROM providers WHERE npi = $1 LIMIT 1', [npi]);
         if (pgProvider.length > 0) {
           payments = await getPaymentsFromPostgres(npi);
-          source = 'postgres';
         }
       }
 

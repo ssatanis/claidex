@@ -45,41 +45,33 @@ const env = parsed.data;
 // Priority: explicit DATABASE_URL > local POSTGRES_URL > cloud NEON_PROVIDERS_URL
 // This ensures the local Docker Postgres (port 5433) is used in development
 // when POSTGRES_URL is set, even if NEON_PROVIDERS_URL is also present in .env.
-const {
-  NODE_ENV,
-  PORT,
-  CORS_ORIGIN,
-  NEO4J_URI,
-  NEO4J_USER,
-  NEO4J_PASSWORD,
-  DATABASE_URL,
-  NEON_PROVIDERS_URL,
-  POSTGRES_URL,
-} = env;
+const pgUrl =
+  env.DATABASE_URL ??
+  env.POSTGRES_URL ??
+  env.NEON_PROVIDERS_URL ??
+  null;
 
-const pgUrl = DATABASE_URL ?? POSTGRES_URL ?? NEON_PROVIDERS_URL ?? null;
-
-if (!pgUrl && NODE_ENV !== 'test') {
+if (!pgUrl && process.env.NODE_ENV !== 'test') {
   console.error('[config] No Postgres URL found. Set DATABASE_URL, NEON_PROVIDERS_URL, or POSTGRES_URL.');
   process.exit(1);
 }
 
 // Parse CORS origins: comma-separated list, trimmed; empty in dev allows all.
-const corsOrigins: string[] = CORS_ORIGIN
-  ? CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
+const corsOrigins: string[] = env.CORS_ORIGIN
+  ? env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
   : [];
 
 export const config = {
-  nodeEnv: NODE_ENV,
-  port: PORT,
+  nodeEnv: process.env.NODE_ENV ?? env.NODE_ENV,
+  port: env.PORT,
   corsOrigins,
   neo4j: {
-    uri: NEO4J_URI,
-    user: NEO4J_USER,
-    password: NEO4J_PASSWORD,
+    uri: env.NEO4J_URI,
+    user: env.NEO4J_USER,
+    password: env.NEO4J_PASSWORD,
   },
   pgUrl: pgUrl ?? '',
-  isDev: NODE_ENV === 'development',
-  isProd: NODE_ENV === 'production',
-  isTest: NODE_ENV === 'test',
+  isDev: (process.env.NODE_ENV ?? env.NODE_ENV) === 'development',
+  isProd: (process.env.NODE_ENV ?? env.NODE_ENV) === 'production',
+  isTest: (process.env.NODE_ENV ?? env.NODE_ENV) === 'test',
 };
