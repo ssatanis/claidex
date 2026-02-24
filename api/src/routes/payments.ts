@@ -135,7 +135,7 @@ paymentsRouter.get(
 
       const body: ApiResponse<PaymentSummary[]> = {
         data: payments,
-        meta: { source: `claidex-v1-${source}`, query_time_ms: Date.now() - start },
+        meta: { source: 'claidex-v1', query_time_ms: Date.now() - start },
       };
       res.json(body);
     } catch (err) {
