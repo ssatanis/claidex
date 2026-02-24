@@ -1,0 +1,11 @@
+# Modal-specific requirements for Claidex risk score parallel pipeline
+# These are installed in the Modal container image (defined in claidex_modal.py)
+# Local installation: pip install -r requirements-modal.txt
+
+modal>=0.66.0
+polars==1.19.0
+pyarrow==18.1.0
+neo4j==5.26.0
+psycopg2-binary==2.9.10
+numpy==2.2.1
+python-dotenv==1.0.1

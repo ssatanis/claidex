@@ -1,0 +1,93 @@
+---
+title: Development
+description: Daily workflow, ETL pipeline, and verification
+---
+
+## Daily workflow
+
+Start infrastructure and API in one shot:
+
+```bash
+./scripts/up.sh
+```
+
+This ensures `.env` exists, starts Neo4j, Postgres, Redis, and the API container. The API waits for DB health before listening.
+
+Run the API on the host (e.g. for debugging) instead of in Docker:
+
+```bash
+./scripts/docker-up.sh neo4j postgres redis   # Infra only
+cd api && npm run dev                         # API on PORT from .env
+cd frontend && npm run dev                    # Frontend in another terminal
+```
+
+## ETL pipeline
+
+Data flows: **raw** → **processed** (Parquet) → **databases**.
+
+<Steps>
+  <Step title="Ingest">
+    Download and parse sources into `data/raw/`. Scripts write Parquet to `data/processed/`.
+    Example: `python etl/ingest/leie_ingest.py`, `python etl/ingest/nppes_ingest.py`.
+  </Step>
+  <Step title="Transform">
+    Clean, normalize, entity resolution. Output stays in `data/processed/`.
+    Example: `python etl/transform/exclusions_transform.py`, `python etl/transform/providers_transform.py`.
+  </Step>
+  <Step title="Load">
+    Bulk load to Postgres (COPY) and Neo4j (LOAD CSV from exports).
+    `python etl/load/postgres_loader.py [tables...]`, `python etl/load/neo4j_loader.py [nodes|edges|all]`.
+  </Step>
+</Steps>
+
+Load specific tables:
+
+```bash
+python etl/load/postgres_loader.py providers exclusions
+python etl/load/neo4j_loader.py all
+```
+
+## API development
+
+```bash
+cd api
+npm install
+npm run dev    # TypeScript watch; port from .env
+npm test       # Test suite
+```
+
+Responses use `{ data, meta }`. Use `queryPg` and `runCypher` from `db/postgres` and `db/neo4j` in route handlers.
+
+## Frontend development
+
+```bash
+cd frontend
+npm install
+npm run dev    # Next.js dev server
+npm run build
+npm run lint
+```
+
+Key routes: `/providers/[npi]`, `/entities/[id]`, `/exclusions`, `/dashboard`, `/watchlists`, `/events`.
+
+## Verification
+
+| Check | Command |
+|-------|---------|
+| Docker services | `docker compose -f infra/docker-compose.yml ps` |
+| API health | `curl http://localhost:4001/health` |
+| Postgres | `docker compose exec postgres psql -U claidex -d claidex -c "SELECT 1;"` |
+| Neo4j | `curl http://localhost:7475` |
+| Full verify | `./scripts/verify.sh` |
+
+## Scripts reference
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/init.sh` | First-time setup (dirs, Docker, deps) |
+| `scripts/init-postgres-schemas.sh` | Apply Postgres schemas |
+| `scripts/up.sh` | Start Docker + API |
+| `scripts/docker-up.sh [services]` | Start selected Docker services |
+| `scripts/verify.sh` | System verification |
+| `scripts/run_pipeline.sh` | ETL pipeline tasks |
+| `scripts/check_neo4j_basic.py` | Neo4j graph sanity check |

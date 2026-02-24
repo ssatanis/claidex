@@ -1,0 +1,41 @@
+---
+title: Exclusions
+description: LEIE exclusion list and filters
+---
+
+## List exclusions
+
+`GET /v1/exclusions`
+
+Paginated list of exclusions (LEIE) with optional filters.
+
+### Query parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `state` | string | — | Two-letter state code (uppercase). |
+| `start_date` | string | — | YYYY-MM-DD. |
+| `end_date` | string | — | YYYY-MM-DD. |
+| `has_payments` | boolean | — | Filter by presence of payment data. |
+| `limit` | integer | 50 | Page size (1–200). |
+| `offset` | integer | 0 | Offset. |
+
+### Response
+
+```json
+{
+  "data": {
+    "exclusions": [ { "npi", "name", "exclusion_type", "waiver", "reinstated", "state", ... } ],
+    "total": 0
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+### Status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success. |
+
+Exclusions are loaded from LEIE (and optionally SAM). Reinstated records have `reinstated: true`. The [Risk](/api-reference/risk) endpoint uses exclusion proximity in the ownership chain as one component of the score.

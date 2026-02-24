@@ -1,0 +1,74 @@
+---
+title: Me (account)
+description: Current user, profile, and account endpoints
+---
+
+Account endpoints under `/v1/me` require authentication (session or API key).
+
+## Get current user
+
+`GET /v1/me`
+
+Returns the authenticated user’s profile and account info.
+
+### Response
+
+```json
+{
+  "data": {
+    "user": { "id", "email", "name", ... },
+    "organization": { ... },
+    ...
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+---
+
+## Update profile
+
+`PATCH /v1/me/profile`
+
+Update display name or other profile fields. Body: JSON with allowed fields.
+
+---
+
+## Security
+
+- `PATCH /v1/me/security/password` — Change password.
+- `PATCH /v1/me/security/sessions/revoke` — Revoke other sessions.
+- `GET /v1/me/security/log` — Security log (e.g. logins).
+
+---
+
+## Notifications
+
+- `GET /v1/me/notifications` — Notification preferences.
+- `PATCH /v1/me/notifications` — Update preferences.
+
+---
+
+## Organization
+
+- `GET /v1/me/organization` — Current organization.
+- `PATCH /v1/me/organization` — Update organization.
+- `GET /v1/me/organization/members` — Member list.
+- `PATCH /v1/me/organization/members/:id` — Update member role.
+- `DELETE /v1/me/organization/members/:id` — Remove member.
+
+---
+
+## API keys
+
+- `GET /v1/me/api-keys` — List API keys (secrets not shown).
+- `POST /v1/me/api-keys` — Create key; secret returned once.
+- `DELETE /v1/me/api-keys/:id` — Revoke key.
+
+---
+
+## Export
+
+- `GET /v1/me/export` — Request or retrieve user data export (format and scope as implemented).
+
+All of the above return 401 when not authenticated.

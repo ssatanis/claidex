@@ -1,0 +1,39 @@
+---
+title: Authentication
+description: API keys and session-based access
+---
+
+## Overview
+
+- **Public endpoints** (e.g. provider lookup, search, exclusions) may be called without authentication, subject to rate limits.
+- **Account endpoints** under `/v1/me` (profile, API keys, organization, watchlists, export) require a valid session or API key.
+
+## Session (browser)
+
+When using the frontend, the app manages sessions (e.g. cookie or token). The API validates the session and returns the current user for `GET /v1/me` and allows mutations (PATCH profile, API keys, organization, watchlist) when authenticated.
+
+## API keys
+
+For server-to-server or script access:
+
+1. Authenticate via the app (or existing auth flow) and open **Settings** or **API keys**.
+2. Create an API key. Store the secret securely; it may not be shown again.
+3. Send the key in the request:
+
+**Header (recommended):**
+
+```
+Authorization: Bearer <api_key>
+```
+
+**Query (alternative, if supported):**
+
+```
+?api_key=<api_key>
+```
+
+Keys can be revoked from the same settings. Do not commit keys to source control or expose them in client-side code.
+
+## Scopes (future)
+
+Future versions may support scoped API keys (e.g. read-only providers, read/write watchlists). Current keys have full access to the authenticated user’s account endpoints.

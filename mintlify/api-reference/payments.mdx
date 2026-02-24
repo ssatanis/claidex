@@ -1,0 +1,47 @@
+---
+title: Payments
+description: Payment summary by NPI
+---
+
+## Get payments by NPI
+
+`GET /v1/payments/:npi`
+
+Returns payment summary records for a provider from the graph (RECEIVED_PAYMENT → PaymentSummary), ordered by year (desc) and program.
+
+### Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `npi` | string | 10-digit NPI. |
+
+### Response
+
+```json
+{
+  "data": {
+    "npi": "1316250707",
+    "payments": [
+      {
+        "record_id": "...",
+        "year": 2023,
+        "program": "Medicare",
+        "payments": 123456.78,
+        "claims": 1000,
+        "beneficiaries": 500
+      }
+    ]
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+### Status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success. |
+| 404 | Provider not found in graph. |
+| 422 | Invalid NPI format. |
+
+Payment aggregates are loaded from ETL (Medicaid, Medicare Physician, Part D, etc.). See [Data sources](/data-sources) and [Risk](/api-reference/risk) for how payments feed risk scoring.

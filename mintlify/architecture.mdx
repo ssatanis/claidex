@@ -1,0 +1,51 @@
+---
+title: Architecture
+description: System design and data flow
+---
+
+## High-level architecture
+
+Claidex is a **three-tier** platform: data sources feed an ETL pipeline; results are stored in Postgres and Neo4j; a REST API and Next.js frontend serve applications.
+
+```
+┌─────────────────┐     ┌──────────────────────────────────┐     ┌─────────────────┐
+│  Data sources   │────▶│  ETL (ingest → transform → load)  │────▶│  Postgres       │
+│  NPPES, LEIE,   │     │  Python, Parquet, COPY, Cypher    │     │  Neo4j          │
+│  Medicaid, etc. │     └──────────────────────────────────┘     └────────┬────────┘
+└─────────────────┘                                                       │
+                                                                         ▼
+┌─────────────────┐     ┌──────────────────────────────────┐     ┌─────────────────┐
+│  Frontend       │────▶│  REST API (Express, /v1/*)        │────▶│  Postgres       │
+│  Next.js 15     │     │  TypeScript, rate limit, CORS     │     │  Neo4j          │
+└─────────────────┘     └──────────────────────────────────┘     └─────────────────┘
+```
+
+## Components
+
+| Layer | Technology | Role |
+|-------|------------|------|
+| **Ingest** | Python 3.10+ | Download and parse CSVs/APIs → Parquet in `data/processed/` |
+| **Transform** | Python | Normalize, deduplicate, entity resolution, UBO inference |
+| **Load** | COPY / LOAD CSV | Bulk load into Postgres and Neo4j |
+| **Postgres** | Neon or Docker | Providers, payments, exclusions, risk scores; FTS on provider name |
+| **Neo4j** | AuraDB or Docker | Graph: Provider, CorporateEntity, Person, Exclusion; OWNS, EXCLUDED_BY, RECEIVED_PAYMENT |
+| **API** | Express (api/) | REST at `/v1/*`; health at `/health` and `/v1/health` |
+| **Frontend** | Next.js 15, React 19 | Dashboard, provider/entity pages, watchlists, events |
+| **Redis** | Upstash or Docker | Optional; rate limiting / session state |
+
+## Data flow equation
+
+Conceptually, the pipeline computes:
+
+**Raw** \( R \) → **Processed** \( P = \mathcal{T}(R) \) → **Relational** \( D_{pg} \), **Graph** \( D_G \)
+
+where \( \mathcal{T} \) is the transform stage (cleaning, normalization, entity resolution). The API serves queries over \( D_{pg} \) and \( D_G \) with responses in the form \( \{ \texttt{data}, \texttt{meta} \} \).
+
+## Security and operations
+
+- **Secrets**: All credentials in environment variables (`.env`); never committed.
+- **CORS**: In production, `CORS_ORIGIN` restricts allowed frontend origins.
+- **Rate limiting**: Applied to `/v1/*`; health endpoints are excluded.
+- **Health**: `/health` and `/v1/health` report Postgres and Neo4j status for orchestrators and frontend availability checks.
+
+See [Data model](/data-model) for schema details and [Deployment](/deployment) for production topology.

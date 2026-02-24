@@ -1,0 +1,70 @@
+---
+title: Troubleshooting
+description: Common issues and fixes
+---
+
+## Docker services won’t start
+
+**Ports in use:**
+
+```bash
+lsof -i :5433   # Postgres (host)
+lsof -i :7688   # Neo4j Bolt (host)
+lsof -i :6380   # Redis (host)
+lsof -i :4001   # API
+```
+
+**Logs:**
+
+```bash
+docker compose -f infra/docker-compose.yml logs neo4j
+docker compose -f infra/docker-compose.yml logs postgres
+```
+
+**Restart:** `docker compose -f infra/docker-compose.yml restart`
+
+## Environment variables
+
+If you see warnings about `NEO4J_PASSWORD` or `POSTGRES_PASSWORD`:
+
+- Ensure `.env` exists at repo root and contains the variables.
+- Run Docker from the project root: `docker compose -f infra/docker-compose.yml --env-file .env up -d`.
+
+## Database connections
+
+**Postgres:**
+
+```bash
+docker compose -f infra/docker-compose.yml exec postgres psql -U claidex -d claidex -c "SELECT 1;"
+```
+
+From host (port 5433): `POSTGRES_URL=postgres://claidex:PASSWORD@localhost:5433/claidex`.
+
+**Neo4j:** Open http://localhost:7475 (Browser). Bolt: `bolt://localhost:7688`. Credentials from `.env`.
+
+**Service status:** `docker compose -f infra/docker-compose.yml ps`
+
+## API won’t start
+
+- Confirm `.env` is loaded (e.g. `cd api` and check that `NEO4J_URI`, `NEO4J_PASSWORD` are set).
+- Run `npm install` in `api/`.
+- If the port is in use, set `PORT` to another value in `.env` and match `NEXT_PUBLIC_API_BASE_URL` in the frontend.
+
+## ETL errors
+
+- Install ETL deps: `cd etl && pip install -e .`
+- Ensure `data/` layout exists: `scripts/setup-data-dirs.sh` or `scripts/init.sh`.
+- For Postgres/Neo4j in scripts, ensure env is loaded (e.g. `load_dotenv()` and correct `POSTGRES_URL` / `NEO4J_URI`).
+
+## Frontend can’t reach API
+
+- Check `NEXT_PUBLIC_API_BASE_URL` in `frontend/.env.local` (no trailing slash).
+- In dev: use the same host/port the API is listening on (e.g. 4001 or 4002).
+- In production: use the deployed API URL; CORS must allow the frontend origin (`CORS_ORIGIN` on API).
+
+## Mintlify dev (docs)
+
+If `mint dev` fails or a page 404s:
+
+- Run from the directory that contains `docs.json` (e.g. `mintlify/`).
+- Run `mint update` to refresh the CLI.

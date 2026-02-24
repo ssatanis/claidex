@@ -1,0 +1,38 @@
+---
+title: Entities
+description: Corporate entity detail and structure
+---
+
+## Get entity by ID
+
+`GET /v1/entities/:entityId`
+
+Returns a corporate entity by its internal `entity_id` (Neo4j), including owned children and linked persons (e.g. officers).
+
+### Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `entityId` | string | Corporate entity ID (from graph). |
+
+### Response
+
+```json
+{
+  "data": {
+    "entity": { "entity_id", "name", "entityType", ... },
+    "owned": [ { "entity_id", "name", "entityType", ... } ],
+    "officers": [ { "name", "title", ... } ]
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+### Status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success. |
+| 404 | Entity not found. |
+
+Entity IDs are stable values stored in Neo4j (e.g. from CMS associate data or ETL). Use [Ownership](/api-reference/ownership) to resolve ownership chains by NPI.

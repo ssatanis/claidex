@@ -1,0 +1,96 @@
+---
+title: Quickstart
+description: Get Claidex running locally in minutes
+---
+
+## Prerequisites
+
+- **Node.js** 18+ (API and frontend)
+- **Python** 3.10+ (ETL)
+- **Docker** (Neo4j, Postgres, Redis)
+- **Git**
+
+## 1. Clone and environment
+
+```bash
+git clone <your-repo-url>
+cd claidex
+cp .env.example .env
+```
+
+Edit `.env`: set `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`, and either `POSTGRES_URL` (local Docker) or `NEON_PROVIDERS_URL` (Neon). Set `PORT=4001` (or 4002 if running API on host).
+
+For the frontend:
+
+```bash
+cp frontend/.env.local.example frontend/.env.local
+```
+
+Set `NEXT_PUBLIC_API_BASE_URL=http://localhost:4001` (or 4002 to match API).
+
+## 2. Initialize infrastructure
+
+```bash
+chmod +x scripts/*.sh
+./scripts/init.sh
+./scripts/init-postgres-schemas.sh
+```
+
+This creates data directories, starts Docker (Neo4j, Postgres, Redis), and applies Postgres schemas.
+
+## 3. Start the API
+
+```bash
+cd api
+npm install
+npm run dev
+```
+
+API is available at `http://localhost:4001` (or your `PORT`). Health: `GET /health`.
+
+## 4. Start the frontend
+
+In a second terminal:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Open **http://localhost:3000**.
+
+## 5. Verify
+
+```bash
+./scripts/verify.sh
+```
+
+Checks Docker services, API health, and Postgres/Neo4j connectivity.
+
+## Port reference
+
+| Service | Host port | Notes |
+|---------|-----------|--------|
+| Postgres | 5433 | Not 5432 (avoids local conflict) |
+| Neo4j Browser | 7475 | Bolt: 7688 |
+| Redis | 6380 | Not 6379 |
+| API | 4001 or `PORT` | From `.env` |
+| Frontend | 3000 | Next.js default |
+
+## Optional: load data
+
+After infrastructure is up, run ETL to populate providers, exclusions, and graph:
+
+```bash
+cd etl
+pip install -e .
+# Ingest and transform (examples)
+python etl/ingest/leie_ingest.py
+python etl/transform/exclusions_transform.py
+python etl/transform/providers_transform.py
+python etl/load/postgres_loader.py providers exclusions
+python etl/load/neo4j_loader.py
+```
+
+See [ETL overview](/etl-overview) and [Development](/development) for full pipeline and daily workflow.

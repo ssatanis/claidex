@@ -1,0 +1,68 @@
+---
+title: Data model
+description: Postgres tables and Neo4j graph schema
+---
+
+## Postgres (relational)
+
+Core tables (defined in `etl/schemas/*.sql`):
+
+| Table | Purpose |
+|-------|---------|
+| `providers` | NPI registry; display name, taxonomy, state, entity type; FTS index on name/NPI/city |
+| `corporate_entities` | CMS associate IDs, ownership flags |
+| `payments_medicaid`, `payments_medicare` | Payment aggregates by NPI and year |
+| `exclusions` | LEIE exclusion records; reinstatement status |
+| `ownership_snf` | SNF ownership relationships |
+| `provider_risk_scores` | Precomputed risk score, label, components, peer group |
+
+A unified payments view `payments_combined_v` unions payment tables and joins `providers` for taxonomy and state (used by risk scoring).
+
+## Neo4j (graph)
+
+**Node labels**
+
+| Label | Key attributes | Description |
+|-------|----------------|-------------|
+| `Provider` | `npi`, `name`, `city`, `state`, `taxonomy`, `is_excluded` | Healthcare providers |
+| `CorporateEntity` | `name`, `entityType` (e.g. SNF), CMS IDs | Organizations |
+| `Person` | Identity fields | Individual owners/officers |
+| `Exclusion` | LEIE fields | Exclusion records |
+| `PaymentSummary` | Aggregates by program/year | Payment summary nodes |
+
+**Relationships**
+
+| Type | From → To | Description |
+|------|-----------|-------------|
+| `OWNS` | CorporateEntity → CorporateEntity | Ownership (up to 5 hops in traversal) |
+| `CONTROLLED_BY` | CorporateEntity → Person | Control by person |
+| `EXCLUDED_BY` | Provider → Exclusion | Provider is excluded |
+| `RECEIVED_PAYMENT` | Provider → PaymentSummary | Payment link |
+
+Ownership resolution in the API: find `CorporateEntity` nodes (e.g. SNF) whose name contains the provider’s name, then traverse `OWNS` backward to build the chain.
+
+## Mathematical view (risk peer group)
+
+For risk scoring, a **peer group** for provider \( i \) in year \( t \) is defined as all providers \( j \) such that:
+
+- Same 10-character primary taxonomy: \( \texttt{taxonomy\_1}^{(i)}[1{:}10] = \texttt{taxonomy\_1}^{(j)}[1{:}10] \)
+- Same state: \( \texttt{state}^{(i)} = \texttt{state}^{(j)} \)
+- At least 100 claims in year \( t \)
+
+If the resulting set has fewer than 50 members, the state constraint is dropped (taxonomy-only fallback). This keeps statistics stable for rare specialties or rural areas.
+
+## Export files (Neo4j load)
+
+The ETL writes CSVs to `data/exports/` (Neo4j import dir):
+
+| File | Content |
+|------|---------|
+| `nodes_providers.csv` | Provider nodes |
+| `nodes_entities.csv` | CorporateEntity nodes |
+| `nodes_persons.csv` | Person nodes |
+| `nodes_exclusions.csv` | Exclusion nodes |
+| `edges_ownership.csv` | OWNS / CONTROLLED_BY |
+| `edges_payments.csv` | RECEIVED_PAYMENT |
+| `edges_exclusions.csv` | EXCLUDED_BY |
+
+Loaders use `MERGE`, so runs are idempotent.

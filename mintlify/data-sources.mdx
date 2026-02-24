@@ -1,0 +1,36 @@
+---
+title: Data sources
+description: Input data and source layout
+---
+
+## Supported sources
+
+| Source | Ingest script | Content |
+|--------|---------------|---------|
+| **NPPES** | `nppes_ingest.py` | NPI registry, taxonomy, addresses |
+| **LEIE** | `leie_ingest.py` | List of Excluded Individuals/Entities |
+| **Medicaid PUF** | `medicaid_puf_ingest.py` | Medicaid payment aggregates |
+| **Medicare Physician** | `medicare_physician_ingest.py` | Medicare Part B physician payments |
+| **Medicare Part D** | `medicare_part_d_ingest.py` | Part D prescribing |
+| **Medicare Inpatient** | `medicare_inpatient_ingest.py` | Facility inpatient (CCN-keyed) |
+| **SNF ownership** | `snf_ownership_ingest.py` | CMS SNF ownership filings |
+| **HCRIS** | `hcris_ingest.py` | Hospital/SNF financials |
+| **OpenCorporates** | (via transform/cache) | Entity enrichment |
+| **SAM** | (optional) | SAM.gov exclusion data |
+| **FEC** | `fec_ingest.py` | Committee/contribution data |
+| **Other** | Various | PPEF, POS, open-payments, form990, etc. |
+
+Raw data is stored under `data/raw/<source>/` (e.g. `data/raw/leie/YYYY-MM/`, `data/raw/nppes/YYYY-MM/`). Processed Parquet lives in `data/processed/<domain>/`.
+
+## Data flow
+
+Raw files are **never modified**. Ingest reads them and writes Parquet; transform reads and writes Parquet only in `data/processed/`. Loaders read from `data/processed/` (Postgres) or from `data/exports/` (Neo4j).
+
+## Usage in API
+
+- **Providers**: NPPES + taxonomy/state for search and peer groups.
+- **Payments**: Medicaid, Medicare Physician, Part D feed `payments_combined_v` and risk billing/trajectory/concentration.
+- **Exclusions**: LEIE (and optionally SAM) feed `exclusions` and Neo4j `EXCLUDED_BY`.
+- **Ownership**: SNF ownership feeds Neo4j `CorporateEntity` and `OWNS`; used for ownership chain risk.
+
+See [ETL overview](/etl-overview) and [Schemas](/schemas) for table and graph definitions.

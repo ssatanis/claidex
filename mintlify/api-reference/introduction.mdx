@@ -1,0 +1,35 @@
+---
+title: API introduction
+description: REST API overview, base URL, and conventions
+---
+
+## Base URL
+
+- **Local:** `http://localhost:4001` (or `PORT` from `.env`)
+- **Production:** Set by deployment (e.g. `https://api.example.com`)
+
+All documented endpoints are under the **v1** prefix: `/v1/*`.
+
+## Conventions
+
+- **Method:** REST; primary methods are `GET`, `POST`, `PATCH`, `DELETE` as appropriate.
+- **Response shape:** Successful JSON responses use `{ "data": ..., "meta": { ... } }`. Paginated lists include `meta` with counts or cursor info. Errors use HTTP status codes and a consistent error body.
+- **IDs:** Provider lookups use 10-digit **NPI**. Entity lookups use internal IDs or CMS associate IDs as defined per endpoint.
+- **Rate limiting:** Applied to `/v1/*`. Health endpoints (`/health`, `/v1/health`) are not rate-limited.
+
+## Health
+
+| Endpoint | Purpose |
+|----------|---------|
+| `GET /health` | Orchestrator health; returns 200 when Postgres and Neo4j are connected. |
+| `GET /v1/health` | Same check with `status`, `postgres`, `neo4j`, `uptime_seconds`. |
+
+## Versioning
+
+The current API version is **v1**. Breaking changes will be introduced under a new version path (e.g. `/v2/`). Non-breaking additions (new fields, new endpoints) may be made within v1.
+
+## Next steps
+
+- [Authentication](/api-reference/authentication) — API keys and session-based access for account endpoints.
+- [Providers](/api-reference/providers) — NPI lookup and provider detail.
+- [Search](/api-reference/search) — Full-text search.

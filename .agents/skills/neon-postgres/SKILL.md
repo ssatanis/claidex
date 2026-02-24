@@ -1,6 +1,6 @@
 ---
 name: neon-postgres
-description: Guides and best practices for working with Neon Serverless Postgres. Covers getting started, local development with Neon, choosing a connection method, Neon features, authentication (@neondatabase/auth), PostgREST-style data API (@neondatabase/neon-js), Neon CLI, and Neon's Platform API/SDKs. Use for any Neon-related questions.
+description: Guides and best practices for working with Neon Serverless Postgres. Covers getting started, local development with Neon, connection methods (TCP, HTTP, WebSocket), connection pooling (PgBouncer, -pooler), securing connections (SSL/sslmode), Neon features (branching, autoscaling, scale-to-zero), authentication (@neondatabase/auth), PostgREST-style data API (@neondatabase/neon-js), Neon CLI, and Neon's Platform API/SDKs. Use for any Neon-related questions.
 ---
 
 # Neon Serverless Postgres
@@ -163,10 +163,21 @@ Use this when the user is in serverless or high-concurrency environments and nee
 Key points:
 
 - Neon pooling uses PgBouncer.
-- Add `-pooler` to endpoint hostnames to use pooled connections.
+- Add `-pooler` to endpoint hostnames (or use Connection pooling toggle in Neon Console) to use pooled connections.
 - Pooling is especially important in serverless runtimes with bursty concurrency.
+- Use **direct** (non-pooled) connections for migrations, `pg_dump`, logical replication, and session-level features.
 
-Link: https://neon.com/docs/connect/connection-pooling.md
+Link: https://neon.com/docs/connect/connection-pooling.md  
+Local reference: `references/connection-pooling.md`
+
+## Securing Connections
+
+Use this when configuring SSL/TLS for Neon connections.
+
+- Neon requires SSL/TLS for all connections. Append `?sslmode=require` to the connection string (minimum). Neon recommends `verify-full` for production (hostname and CA verification).
+- In Node.js `pg`, use `ssl: { rejectUnauthorized: true }` for Neon (do not disable certificate verification).
+
+Link: https://neon.com/docs/connect/connect-securely.md
 
 ## IP Allow Lists
 

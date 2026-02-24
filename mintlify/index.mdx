@@ -1,0 +1,55 @@
+---
+title: Introduction
+description: Claidex — healthcare provider and corporate entity data platform
+---
+
+<CardGroup cols={2}>
+  <Card title="NPI lookup" icon="magnifying-glass">
+    Query the National Provider Identifier registry with full-text search, taxonomy, and state filters.
+  </Card>
+  <Card title="Ownership graphs" icon="diagram-nested">
+    Traverse corporate ownership chains (Neo4j) for SNF and affiliated entities.
+  </Card>
+  <Card title="Exclusions (LEIE)" icon="shield-check">
+    Check List of Excluded Individuals/Entities and exclusion proximity in ownership chains.
+  </Card>
+  <Card title="Risk scoring" icon="chart-line">
+    Composite, peer-calibrated risk score with billing, trajectory, and network components.
+  </Card>
+</CardGroup>
+
+## Platform overview
+
+Claidex is a **three-tier** data platform:
+
+```
+Data sources → ETL (ingest / transform / load) → Postgres + Neo4j → REST API → Frontend
+```
+
+- **Postgres**: Relational data — providers, payments, exclusions, risk scores. Full-text search over provider names and NPI.
+- **Neo4j**: Graph data — providers, corporate entities, persons, exclusions; edges for ownership, payments, and exclusions.
+- **REST API**: TypeScript/Express at `/v1/*`. Rate-limited, CORS-configured, health-checked.
+- **Frontend**: Next.js 15 + React 19; dashboard, provider detail, watchlists, events, settings.
+
+## Key concepts
+
+| Concept | Description |
+|--------|-------------|
+| **NPI** | 10-digit National Provider Identifier; primary key for providers. |
+| **Peer group** | Providers sharing taxonomy (10-char) and state; used for risk calibration. |
+| **Ownership chain** | CorporateEntity nodes connected by `OWNS` (up to 5 hops); SNF-focused. |
+| **LEIE** | List of Excluded Individuals/Entities; exclusion status and reinstatement. |
+
+## Next steps
+
+<CardGroup cols={1}>
+  <Card title="Quickstart" icon="rocket-launch" href="/quickstart">
+    Get the API, frontend, and infrastructure running locally.
+  </Card>
+  <Card title="Development" icon="code" href="/development">
+    Daily workflow, ETL pipeline, and verification.
+  </Card>
+  <Card title="API reference" icon="plug" href="/api-reference/introduction">
+    REST endpoints, authentication, and response formats.
+  </Card>
+</CardGroup>

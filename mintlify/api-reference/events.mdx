@@ -1,0 +1,33 @@
+---
+title: Events
+description: Event stream and activity
+---
+
+## List events
+
+`GET /v1/events`
+
+Returns a stream of events (e.g. exclusion updates, risk changes, or other activity) for the authenticated user or organization. Used by the dashboard and activity views.
+
+### Query parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | integer | 20 | Max events to return. |
+| `offset` | integer | 0 | Pagination offset. |
+| `since` | string | — | ISO date or timestamp; return events after this time. |
+| `type` | string | — | Optional filter by event type. |
+
+### Response
+
+```json
+{
+  "data": {
+    "events": [ { "id", "type", "created_at", "payload", ... } ],
+    "total": 0
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+Requires authentication. Event types and payload shape are defined by the implementation (e.g. exclusion alerts, risk threshold crossings).

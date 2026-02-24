@@ -1,0 +1,77 @@
+---
+title: Risk score
+description: Composite risk score and methodology
+---
+
+## Get provider risk
+
+`GET /v1/providers/:npi/risk`
+
+Returns the Claidex Risk Score for a provider: a composite, peer-calibrated score in [0, 100] with component breakdown and plain-English flags.
+
+### Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `npi` | string | 10-digit NPI. |
+
+### Response
+
+```json
+{
+  "data": {
+    "npi": "1316250707",
+    "risk_score": 74.2,
+    "risk_label": "Elevated",
+    "components": {
+      "billing_outlier_score": 88.0,
+      "billing_outlier_percentile": 97.0,
+      "ownership_chain_risk": 65.0,
+      "payment_trajectory_score": 58.0,
+      "exclusion_proximity_score": 40.0,
+      "program_concentration_score": 55.0
+    },
+    "peer_group": { "taxonomy": "207R00000X", "state": "TX", "peer_count": 1420 },
+    "flags": [ "Billing > 95th percentile vs. state/taxonomy peers (payments per claim)." ],
+    "meta": { "computed_at", "data_window_years" }
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+### Risk labels
+
+| Score range | Label |
+|-------------|--------|
+| 0 – 29.9 | Low |
+| 30 – 59.9 | Moderate |
+| 60 – 79.9 | Elevated |
+| 80 – 100 | High |
+
+---
+
+## Methodology (summary)
+
+The score is a weighted sum of five components, then **globally percentile-calibrated** so that 50% of providers fall below 50.
+
+**Composite (raw):**
+
+$$R_{\text{raw}} = 0.30\,S_b + 0.25\,S_o + 0.20\,S_t + 0.15\,S_e + 0.10\,S_p$$
+
+where \(S_b\), \(S_o\), \(S_t\), \(S_e\), \(S_p\) are billing outlier, ownership chain risk, payment trajectory, exclusion proximity, and program concentration (all in [0, 100]).
+
+**Calibration:**
+
+$$\text{risk\_score} = \text{PERCENT\_RANK}(R_{\text{raw}}) \times 100$$
+
+**Component highlights:**
+
+- **Billing outlier (0.30):** Robust z-scores (median, MAD) on payments-per-claim, claims-per-beneficiary, and total payments within peer group; log transform; temporal decay; mapped to [0,100] via logistic function.
+- **Ownership chain (0.25):** Traverses OWNS up to 5 hops; counts excluded providers in chain; score = min(100, 100 × excluded / max(providers, 1)).
+- **Payment trajectory (0.20):** YoY growth rate vs. peer distribution; robust z-score; positive anomalies only; logistic map.
+- **Exclusion proximity (0.15):** Rule-based: active LEIE → 100; direct owner excluded → 80; other in chain → 50; else 0.
+- **Program concentration (0.10):** Share of largest program over last 3 years; score 0 if ≤50%, else min(100, 200×(s_max − 0.5)).
+
+**Peer group:** Same 10-char taxonomy and state, ≥100 claims in year; if &lt;50 peers, taxonomy-only fallback.
+
+The full specification is in the repository at `docs/RISK_SCORE.md`.

@@ -1,0 +1,44 @@
+---
+title: Ownership
+description: Ownership chain by NPI
+---
+
+## Get ownership chain
+
+`GET /v1/ownership/:npi`
+
+Returns the ownership chain for a provider: the API resolves the provider’s name to matching **CorporateEntity** nodes (e.g. SNF), then traverses **OWNS** edges up to 5 levels. Response is an array of ownership levels (depth, owner, relationship).
+
+### Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `npi` | string | 10-digit NPI. |
+
+### Response
+
+```json
+{
+  "data": {
+    "npi": "1316250707",
+    "levels": [
+      {
+        "depth": 1,
+        "owner": { "entity_id", "name", "entityType", ... },
+        "relationship": "OWNS"
+      }
+    ]
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+Levels are ordered by depth. The graph has no direct Provider→CorporateEntity edge; resolution is by name match (case-insensitive) on SNF (or other) entities.
+
+### Status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success (chain may be empty). |
+| 404 | Provider not found in graph. |
+| 422 | Invalid NPI format. |

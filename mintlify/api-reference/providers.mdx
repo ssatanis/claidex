@@ -1,0 +1,71 @@
+---
+title: Providers
+description: NPI lookup and provider detail
+---
+
+## List providers
+
+`GET /v1/providers`
+
+Paginated list with optional filters.
+
+### Query parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|--------------|
+| `limit` | integer | 20 | Page size (1–100). |
+| `offset` | integer | 0 | Offset for pagination. |
+| `q` | string | — | Full-text search (name, NPI, city). |
+| `state` | string | — | Two-letter state code. |
+| `risk_label` | string | — | Filter by risk label (e.g. Low, Moderate, Elevated, High). |
+| `taxonomy` | string | — | Taxonomy code filter. |
+| `program` | string | — | `Medicare`, `Medicaid`, or `All`. |
+
+### Response
+
+```json
+{
+  "data": {
+    "providers": [ { "npi", "display_name", "entityType", "city", "state", "taxonomy_1", "is_excluded", "risk_label", "risk_score" } ],
+    "total": 0
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+---
+
+## Get provider by NPI
+
+`GET /v1/providers/:npi`
+
+Returns full provider detail, payments summary, and exclusions (from Neo4j when available). NPI must be exactly 10 digits.
+
+### Path parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `npi` | string | 10-digit NPI. |
+
+### Response
+
+```json
+{
+  "data": {
+    "provider": { "npi", "display_name", "entityType", "taxonomy_1", "city", "state", "zip", "is_excluded", ... },
+    "payments": [ { "year", "program", "payments", "claims", "beneficiaries" } ],
+    "exclusions": [ { "exclusion_type", "waiver", "reinstated", ... } ]
+  },
+  "meta": { "source", "query_time_ms", "graph_partial" }
+}
+```
+
+`meta.graph_partial` is `true` when Neo4j was unavailable; provider and payments may still be returned from Postgres.
+
+### Status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success. |
+| 404 | Provider not found. |
+| 422 | Invalid NPI format. |

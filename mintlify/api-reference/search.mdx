@@ -1,0 +1,41 @@
+---
+title: Search
+description: Full-text search over providers and entities
+---
+
+## Search
+
+`GET /v1/search`
+
+Full-text search over providers (display name, NPI, city) using Postgres `ts_rank` and optional entity/person results. Uses the FTS index on `providers` when available.
+
+### Query parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `q` | string | **required** | Search query (min 2 characters). |
+| `type` | string | — | Restrict to `provider`, `entity`, or `person`. Omit for all. |
+| `limit` | integer | 20 | Max results (1–100). |
+
+### Response
+
+```json
+{
+  "data": {
+    "results": [
+      { "type": "Provider", "data": { "npi", "name", "entityType", "city", "state", "taxonomy", "is_excluded", "risk_label", "risk_score" } },
+      { "type": "CorporateEntity", "data": { "entity_id", "name", "entityType", ... } }
+    ]
+  },
+  "meta": { "source", "query_time_ms" }
+}
+```
+
+Results are ordered by relevance (e.g. `ts_rank` for providers). Each item has `type` and `data` with type-specific fields.
+
+### Status codes
+
+| Code | Meaning |
+|------|---------|
+| 200 | Success. |
+| 422 | Query too short or invalid. |

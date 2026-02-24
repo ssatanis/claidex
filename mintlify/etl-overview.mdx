@@ -1,0 +1,79 @@
+---
+title: ETL overview
+description: Ingest, transform, and load pipeline
+---
+
+## Pipeline stages
+
+<Steps>
+  <Step title="Ingest">
+    Scripts in `etl/ingest/` read from `data/raw/` (or fetch remotely), parse source formats, and write **Parquet** to `data/processed/`. Each source has its own script (e.g. `nppes_ingest.py`, `leie_ingest.py`, `hcris_ingest.py`).
+  </Step>
+  <Step title="Transform">
+    Scripts in `etl/transform/` read from `data/processed/`, clean and normalize, perform entity resolution and UBO inference where applicable, and write enriched Parquet back to `data/processed/`.
+  </Step>
+  <Step title="Load">
+    `postgres_loader.py` exports Parquet to CSV and uses Postgres `COPY` for bulk load. `neo4j_loader.py` exports to CSVs in `data/exports/` and runs Cypher (e.g. `LOAD CSV`, `MERGE`) to load the graph. Both support table/subset selection.
+  </Step>
+</Steps>
+
+## Directory layout
+
+`data/` is gitignored. Canonical layout (create with `scripts/setup-data-dirs.sh`):
+
+```
+data/
+├── raw/           # Original downloads (NPPES, LEIE, Medicaid, Medicare, SNF, HCRIS, etc.)
+├── processed/     # Parquet outputs by domain (providers, payments, ownership, exclusions)
+└── exports/       # CSVs for Neo4j import (mounted as /var/lib/neo4j/import in Docker)
+```
+
+## Running the pipeline
+
+```bash
+cd etl
+pip install -e .
+```
+
+**Ingest (examples):**
+
+```bash
+python etl/ingest/leie_ingest.py
+python etl/ingest/nppes_ingest.py
+python etl/ingest/snf_ownership_ingest.py
+python etl/ingest/medicare_physician_ingest.py   # Large
+```
+
+**Transform (examples):**
+
+```bash
+python etl/transform/exclusions_transform.py
+python etl/transform/ownership_transform.py
+python etl/transform/payments_transform.py
+python etl/transform/providers_transform.py
+```
+
+**Load:**
+
+```bash
+python etl/load/postgres_loader.py                    # All tables
+python etl/load/postgres_loader.py providers exclusions  # Selected tables
+python etl/load/neo4j_loader.py [nodes|edges|all]    # Neo4j (default: all)
+```
+
+## Idempotency
+
+- Postgres loader can truncate/replace or upsert depending on table.
+- Neo4j uses `MERGE`; re-running overwrites properties without duplicating nodes or edges.
+
+## Risk score batch
+
+Risk scores are computed in a separate step and written to `provider_risk_scores`:
+
+```bash
+python -m etl.compute.risk_scores
+python -m etl.compute.risk_scores --npi 1316250707 1942248901  # Smoke test
+python -m etl.compute.risk_scores --dry-run
+```
+
+See [Data sources](/data-sources) and [Schemas](/schemas) for source list and table definitions.

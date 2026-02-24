@@ -1,0 +1,22 @@
+---
+title: Watchlists
+description: Watchlist and watchlist-item endpoints
+---
+
+Endpoints for managing watchlists and watched entities (e.g. providers). Require authentication where specified.
+
+## Watchlist collection
+
+- **`GET /v1/watchlists`** — List the current user’s watchlists.
+- **`POST /v1/watchlists`** — Create a watchlist (body: name, optional description).
+- **`GET /v1/watchlists/:id`** — Get a watchlist by ID.
+- **`PATCH /v1/watchlists/:id`** — Update name/description.
+- **`DELETE /v1/watchlists/:id`** — Delete a watchlist.
+
+## Watchlist items (single watchlist)
+
+- **`GET /v1/watchlist?watchlist_id=...`** — List items in a watchlist.
+- **`POST /v1/watchlist`** — Add an item (e.g. NPI or entity ID); body includes `watchlist_id` and target identifier.
+- **`DELETE /v1/watchlist/:id`** — Remove an item by item ID.
+
+Response shapes follow the usual `{ data, meta }` pattern. Use these to track providers or entities of interest and surface them in the dashboard or events.

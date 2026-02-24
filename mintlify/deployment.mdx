@@ -1,0 +1,62 @@
+---
+title: Deployment
+description: Production topology and environment
+---
+
+## Stack
+
+| Component | Production | Notes |
+|-----------|------------|--------|
+| Frontend | Vercel | Next.js; set `NEXT_PUBLIC_API_BASE_URL` to API URL |
+| API | Render / Railway | Node/Express in `api/`; `PORT` from host |
+| Postgres | Neon | Use pooled connection string in production |
+| Neo4j | AuraDB | e.g. AuraDB Free (node limits apply) |
+| Redis | Upstash (optional) | Rate limiting / sessions |
+
+## Environment variables
+
+### Frontend (Vercel)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NEXT_PUBLIC_API_BASE_URL` | Yes | Full API URL (e.g. `https://api.example.com`). No localhost in production. |
+
+### API (Render / Railway)
+
+| Variable | Required | Description |
+|----------|----------|-------------|
+| `NODE_ENV` | Yes | `production` |
+| `PORT` | Set by host | Provided by platform |
+| `NEON_PROVIDERS_URL` or `DATABASE_URL` | Yes | Neon Postgres; use **pooled** URL (`-pooler` host) and `?sslmode=require` |
+| `NEO4J_URI` | Yes | e.g. `neo4j+s://xxx.databases.neo4j.io` |
+| `NEO4J_USER`, `NEO4J_PASSWORD` | Yes | AuraDB credentials |
+| `CORS_ORIGIN` | Yes (prod) | Comma-separated allowed origins (e.g. Vercel app URL) |
+
+Set secrets in the platform dashboard; do not commit them.
+
+## Neon (Postgres)
+
+1. In Neon Console, open the project → Connection details → enable **Connection pooling**.
+2. Copy the pooled connection string (host contains `-pooler`).
+3. Append `?sslmode=require` (or `verify-full`).
+4. Set as `NEON_PROVIDERS_URL` (or `DATABASE_URL`) on the API.
+
+Using the pooled URL avoids exhausting `max_connections` in serverless or multi-instance deployments.
+
+## Neo4j AuraDB
+
+Create an AuraDB instance and set `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`. AuraDB Free has node limits; for large graphs, load a subset (e.g. by state or cohort).
+
+## Render (API)
+
+Use `render.yaml` at repo root: web service with `rootDir: api`, build `npm ci --ignore-scripts && npm run build`, start `node dist/index.js`. Add the env vars in the Render dashboard. Health: `GET https://<your-api>.onrender.com/health`.
+
+## Vercel (frontend)
+
+Deploy the `frontend/` app. Set `NEXT_PUBLIC_API_BASE_URL` to the Render (or Railway) API URL. The app shows “Service temporarily unavailable” when the API is unreachable or misconfigured.
+
+## Verification
+
+1. `GET https://<api-url>/health` → 200, `postgres: "connected"`, `neo4j: "connected"`.
+2. Open frontend: `/dashboard`, `/providers`, `/providers/[npi]`, `/events`, `/watchlists`, `/settings` — no console or network errors.
+3. Confirm no localhost in production (env and Network tab).

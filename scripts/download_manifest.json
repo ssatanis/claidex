@@ -1,0 +1,115 @@
+{
+  "download_date": "2026-02-22T02:18:22.676946",
+  "datasets": [
+    {
+      "url": "https://data.cms.gov/sites/default/files/2024-05/7bb03a80-a0ed-4fd9-a7c8-c851c70d484b/MUP_INP_RY24_P04_V10_DY18_Prv.CSV",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-facility/inpatient/provider/2018/medicare_inpatient_provider_2018.csv",
+      "dataset_name": "Medicare Inpatient 2018",
+      "timestamp": "2026-02-22T02:18:22.677194",
+      "success": true,
+      "file_size_mb": 1.83,
+      "row_count": 3249,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2024-05/1c1f6004-9fe2-43d0-907c-203322cd40e7/MUP_INP_RY24_P04_V10_DY19_Prv.CSV",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-facility/inpatient/provider/2019/medicare_inpatient_provider_2019.csv",
+      "dataset_name": "Medicare Inpatient 2019",
+      "timestamp": "2026-02-22T02:18:27.506171",
+      "success": true,
+      "file_size_mb": 1.8,
+      "row_count": 3198,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2024-05/c2f4c3df-c7ec-4402-8064-7f7d2586ba56/MUP_INP_RY24_P04_V10_DY20_Prv.CSV",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-facility/inpatient/provider/2020/medicare_inpatient_provider_2020.csv",
+      "dataset_name": "Medicare Inpatient 2020",
+      "timestamp": "2026-02-22T02:18:29.774393",
+      "success": true,
+      "file_size_mb": 1.77,
+      "row_count": 3156,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2024-05/ef80e842-4949-46e8-ab66-0c4c4310d400/MUP_INP_RY24_P04_V10_DY21_Prv.CSV",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-facility/inpatient/provider/2021/medicare_inpatient_provider_2021.csv",
+      "dataset_name": "Medicare Inpatient 2021",
+      "timestamp": "2026-02-22T02:18:32.014436",
+      "success": true,
+      "file_size_mb": 1.76,
+      "row_count": 3134,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2024-05/e95428bb-00a6-46e2-9be2-ffd9c6fe5186/MUP_INP_RY24_P04_V10_DY22_Prv.CSV",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-facility/inpatient/provider/2022/medicare_inpatient_provider_2022.csv",
+      "dataset_name": "Medicare Inpatient 2022",
+      "timestamp": "2026-02-22T02:18:34.304304",
+      "success": true,
+      "file_size_mb": 1.75,
+      "row_count": 3120,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2025-05/10e4b7e9-40c5-437b-b4d6-61801b6681f2/MUP_INP_RY25_P04_V10_DY23_Prv.CSV",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-facility/inpatient/provider/2023/medicare_inpatient_provider_2023.csv",
+      "dataset_name": "Medicare Inpatient 2023",
+      "timestamp": "2026-02-22T02:18:36.477402",
+      "success": true,
+      "file_size_mb": 1.73,
+      "row_count": 3093,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2025-11/b8653539-dfde-4d76-8303-efdf87207a4c/MUP_DPR_RY25_P04_V20_DY19_NPI.csv",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-part-d/2019/medicare_part_d_prescribers_2019.csv",
+      "dataset_name": "Medicare Part D 2019",
+      "timestamp": "2026-02-22T02:18:38.642743",
+      "success": true,
+      "file_size_mb": 504.38,
+      "row_count": 1240595,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2025-11/77e12580-bf64-4cae-a0b9-e04468054a2e/MUP_DPR_RY25_P04_V20_DY20_NPI.csv",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-part-d/2020/medicare_part_d_prescribers_2020.csv",
+      "dataset_name": "Medicare Part D 2020",
+      "timestamp": "2026-02-22T02:24:56.563551",
+      "success": true,
+      "file_size_mb": 508.25,
+      "row_count": 1255175,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2025-11/0ae3731b-2a46-4233-8aa6-51426a478dbc/MUP_DPR_RY25_P04_V20_DY21_NPI.csv",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-part-d/2021/medicare_part_d_prescribers_2021.csv",
+      "dataset_name": "Medicare Part D 2021",
+      "timestamp": "2026-02-22T02:25:48.016686",
+      "success": true,
+      "file_size_mb": 521.87,
+      "row_count": 1287454,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2025-11/429c776b-63ab-4976-8764-0b7f05db14bd/MUP_DPR_RY25_P04_V20_DY22_NPI.csv",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/medicare-part-d/2022/medicare_part_d_prescribers_2022.csv",
+      "dataset_name": "Medicare Part D 2022",
+      "timestamp": "2026-02-22T02:27:02.602675",
+      "success": true,
+      "file_size_mb": 540.33,
+      "row_count": 1332309,
+      "error": null
+    },
+    {
+      "url": "https://data.cms.gov/sites/default/files/2026-02/83ffc959-98cd-4bd2-9f58-9ead31cf9400/OrderReferring_20260219.csv",
+      "output_path": "/Users/sahaj/Documents/Projects/Claidex/data/raw/order-referring/order_and_referring_20260219.csv",
+      "dataset_name": "Order and Referring Providers",
+      "timestamp": "2026-02-22T02:27:31.274918",
+      "success": true,
+      "file_size_mb": 67.89,
+      "row_count": 1991969,
+      "error": null
+    }
+  ]
+}

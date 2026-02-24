@@ -1,0 +1,27 @@
+# Render Blueprint — Claidex API (Node/Express)
+# Set env vars in Render dashboard (or sync from repo); do not commit secrets.
+services:
+  - type: web
+    name: claidex-api
+    runtime: node
+    rootDir: api
+
+    buildCommand: npm ci --ignore-scripts && npm run build
+    startCommand: node dist/index.js
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # PORT is set automatically by Render for web services
+      - key: DATABASE_URL
+        sync: false
+        # Set to Neon connection string in Render dashboard
+      - key: NEO4J_URI
+        sync: false
+      - key: NEO4J_USER
+        sync: false
+      - key: NEO4J_PASSWORD
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
+        # Set to your Vercel frontend URL, e.g. https://your-app.vercel.app

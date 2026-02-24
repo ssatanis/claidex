@@ -1,0 +1,93 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "mint",
+  "name": "Claidex",
+  "tagline": "Healthcare provider and corporate entity data platform",
+  "colors": {
+    "primary": "#0d9488",
+    "light": "#2dd4bf",
+    "dark": "#0f766e"
+  },
+  "favicon": "/favicon.svg",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "Guides",
+        "groups": [
+          {
+            "group": "Getting started",
+            "pages": ["index", "quickstart", "development"]
+          },
+          {
+            "group": "Architecture",
+            "pages": ["architecture", "data-model"]
+          },
+          {
+            "group": "Data pipeline",
+            "pages": ["etl-overview", "data-sources", "schemas"]
+          },
+          {
+            "group": "Operations",
+            "pages": ["deployment", "troubleshooting"]
+          }
+        ]
+      },
+      {
+        "tab": "API reference",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": ["api-reference/introduction", "api-reference/authentication"]
+          },
+          {
+            "group": "Core",
+            "pages": [
+              "api-reference/providers",
+              "api-reference/entities",
+              "api-reference/ownership",
+              "api-reference/payments",
+              "api-reference/exclusions"
+            ]
+          },
+          {
+            "group": "Search & intelligence",
+            "pages": ["api-reference/search", "api-reference/risk"]
+          },
+          {
+            "group": "Account",
+            "pages": ["api-reference/me", "api-reference/watchlists", "api-reference/events"]
+          }
+        ]
+      }
+    ],
+    "global": {
+      "anchors": [
+        {
+          "anchor": "Dashboard",
+          "href": "/",
+          "icon": "chart-mixed"
+        }
+      ]
+    }
+  },
+  "navbar": {
+    "links": [
+      {
+        "label": "Support",
+        "href": "mailto:support@claidex.com"
+      }
+    ]
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/your-org/claidex"
+    }
+  },
+  "contextual": {
+    "options": ["copy", "view", "cursor", "vscode"]
+  }
+}

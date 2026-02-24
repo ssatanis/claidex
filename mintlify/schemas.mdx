@@ -1,0 +1,43 @@
+---
+title: Schemas
+description: Postgres and Neo4j schema reference
+---
+
+## Postgres
+
+Table definitions live in `etl/schemas/*.sql`. Key tables:
+
+- **providers** — `npi` (PK), `display_name`, `entity_type_code`, `taxonomy_1`, `state`, `city`, `zip`, `is_excluded`, FTS index.
+- **corporate_entities** — CMS associate IDs, names, ownership flags.
+- **payments_medicaid** / **payments_medicare** — NPI, year, program, claims, beneficiaries, payments.
+- **exclusions** — LEIE fields, NPI (when applicable), reinstatement.
+- **ownership_snf** — SNF ownership links.
+- **provider_risk_scores** — `npi`, `risk_score`, `risk_label`, component scores, peer group, `computed_at`.
+
+Views:
+
+- **payments_combined_v** — Union of payment tables joined to `providers` for taxonomy and state; used by risk computation.
+
+Apply schemas (e.g. after clone or for a new DB):
+
+```bash
+./scripts/init-postgres-schemas.sh
+```
+
+## Neo4j
+
+Initialization and load logic use `infra/neo4j_init.cypher` and the loader’s Cypher. Summary:
+
+**Nodes:** `Provider`, `CorporateEntity`, `Person`, `Exclusion`, `PaymentSummary`.
+
+**Relationships:** `OWNS` (CorporateEntity → CorporateEntity), `CONTROLLED_BY` (CorporateEntity → Person), `EXCLUDED_BY` (Provider → Exclusion), `RECEIVED_PAYMENT` (Provider → PaymentSummary).
+
+Provider ownership is resolved by matching provider name to `CorporateEntity` (e.g. SNF) names, then traversing `OWNS` up to 5 hops.
+
+## Adding new tables
+
+1. Add `etl/schemas/<name>.sql` with `CREATE TABLE` and indexes.
+2. Run `init-postgres-schemas.sh` or apply the SQL manually.
+3. Add ingest/transform steps if needed; add loader support in `postgres_loader.py` for the new table.
+
+For Neo4j, add node/relationship types in the loader and, if needed, in `neo4j_init.cypher`.
