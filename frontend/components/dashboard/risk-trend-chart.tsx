@@ -48,7 +48,7 @@ export function RiskTrendChart({ data, loading }: RiskTrendChartProps) {
           <YAxis tick={{ fontSize: 10 }} />
           <Tooltip
             contentStyle={{ fontSize: 12 }}
-            formatter={(value: number) => value.toLocaleString()}
+            formatter={(value: number | undefined) => (value ?? 0).toLocaleString()}
           />
           <Legend wrapperStyle={{ fontSize: 11 }} />
           <Line

@@ -51,7 +51,10 @@ const pgUrl =
   env.NEON_PROVIDERS_URL ??
   null;
 
-if (!pgUrl && process.env.NODE_ENV !== 'test') {
+// Use process.env.NODE_ENV via a local variable — Vercel rejects env.NODE_ENV, ??, and NODE_ENV identifier
+const mode = process.env.NODE_ENV;
+
+if (!pgUrl && mode !== 'test') {
   console.error('[config] No Postgres URL found. Set DATABASE_URL, NEON_PROVIDERS_URL, or POSTGRES_URL.');
   process.exit(1);
 }
@@ -62,7 +65,7 @@ const corsOrigins: string[] = env.CORS_ORIGIN
   : [];
 
 export const config = {
-  nodeEnv: process.env.NODE_ENV ?? env.NODE_ENV,
+  nodeEnv: mode,
   port: env.PORT,
   corsOrigins,
   neo4j: {
@@ -71,7 +74,7 @@ export const config = {
     password: env.NEO4J_PASSWORD,
   },
   pgUrl: pgUrl ?? '',
-  isDev: (process.env.NODE_ENV ?? env.NODE_ENV) === 'development',
-  isProd: (process.env.NODE_ENV ?? env.NODE_ENV) === 'production',
-  isTest: (process.env.NODE_ENV ?? env.NODE_ENV) === 'test',
+  isDev: mode === 'development',
+  isProd: mode === 'production',
+  isTest: mode === 'test',
 };

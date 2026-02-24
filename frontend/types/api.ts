@@ -45,6 +45,14 @@ export interface RiskDistributionItem {
   count: number;
 }
 
+/** Trend data for risk trend chart (high/elevated/moderate counts by month). */
+export interface RiskTrend {
+  month: string;
+  high_risk_count: number;
+  elevated_count: number;
+  moderate_count: number;
+}
+
 /** State-level risk metrics for dashboard (risk-by-state). */
 export interface RiskByState {
   state: string;

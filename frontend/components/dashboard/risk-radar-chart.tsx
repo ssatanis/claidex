@@ -73,7 +73,7 @@ export function RiskRadarChart({ data, loading }: RiskRadarChartProps) {
             fillOpacity={0.3}
             strokeWidth={2}
           />
-          <Tooltip formatter={(value: number) => [value.toFixed(1), "Score"]} />
+          <Tooltip formatter={(value: number | undefined) => [(value ?? 0).toFixed(1), "Score"]} />
           <Legend wrapperStyle={{ fontSize: 11 }} />
         </RadarChart>
       </ResponsiveContainer>
