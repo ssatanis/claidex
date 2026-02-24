@@ -31,50 +31,64 @@ const configSchema = z.object({
   POSTGRES_URL: z.string().optional(),
 });
 
-const parsed = configSchema.safeParse(process.env);
+// Validate env at startup; Vercel's bundler rejects env/parsed variable references in exports
+(function validateEnv() {
+  const result = configSchema.safeParse(process.env);
+  if (!result.success) {
+    console.error('[config] Invalid environment variables:');
+    console.error(result.error.flatten().fieldErrors);
+    process.exit(1);
+  }
+})();
 
-if (!parsed.success) {
-  console.error('[config] Invalid environment variables:');
-  console.error(parsed.error.flatten().fieldErrors);
-  process.exit(1);
-}
-
-const env = parsed.data;
-
-// Resolve a usable postgres connection string.
-// Priority: explicit DATABASE_URL > local POSTGRES_URL > cloud NEON_PROVIDERS_URL
-// This ensures the local Docker Postgres (port 5433) is used in development
-// when POSTGRES_URL is set, even if NEON_PROVIDERS_URL is also present in .env.
-const pgUrl =
-  env.DATABASE_URL ??
-  env.POSTGRES_URL ??
-  env.NEON_PROVIDERS_URL ??
-  null;
-
-// Use process.env.NODE_ENV via a local variable — Vercel rejects env.NODE_ENV, ??, and NODE_ENV identifier
-const mode = process.env.NODE_ENV;
-
-if (!pgUrl && mode !== 'test') {
+if (
+  !process.env.DATABASE_URL &&
+  !process.env.POSTGRES_URL &&
+  !process.env.NEON_PROVIDERS_URL &&
+  process.env.NODE_ENV !== 'test'
+) {
   console.error('[config] No Postgres URL found. Set DATABASE_URL, NEON_PROVIDERS_URL, or POSTGRES_URL.');
   process.exit(1);
 }
 
-// Parse CORS origins: comma-separated list, trimmed; empty in dev allows all.
-const corsOrigins: string[] = env.CORS_ORIGIN
-  ? env.CORS_ORIGIN.split(',').map((o) => o.trim()).filter(Boolean)
-  : [];
-
+// Export config via getters — Vercel bundler chokes on env.X, intermediate vars, ?? with env
 export const config = {
-  nodeEnv: mode,
-  port: env.PORT,
-  corsOrigins,
-  neo4j: {
-    uri: env.NEO4J_URI,
-    user: env.NEO4J_USER,
-    password: env.NEO4J_PASSWORD,
+  get nodeEnv() {
+    return process.env.NODE_ENV;
   },
-  pgUrl: pgUrl ?? '',
-  isDev: mode === 'development',
-  isProd: mode === 'production',
-  isTest: mode === 'test',
+  get port() {
+    return Number(process.env.PORT) || 4001;
+  },
+  get corsOrigins(): string[] {
+    const c = process.env.CORS_ORIGIN;
+    return c ? c.split(',').map((o) => o.trim()).filter(Boolean) : [];
+  },
+  neo4j: {
+    get uri() {
+      return process.env.NEO4J_URI!;
+    },
+    get user() {
+      return process.env.NEO4J_USER || 'neo4j';
+    },
+    get password() {
+      return process.env.NEO4J_PASSWORD!;
+    },
+  },
+  get pgUrl() {
+    return (
+      process.env.DATABASE_URL ||
+      process.env.POSTGRES_URL ||
+      process.env.NEON_PROVIDERS_URL ||
+      ''
+    );
+  },
+  get isDev() {
+    return process.env.NODE_ENV === 'development';
+  },
+  get isProd() {
+    return process.env.NODE_ENV === 'production';
+  },
+  get isTest() {
+    return process.env.NODE_ENV === 'test';
+  },
 };

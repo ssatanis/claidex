@@ -47,3 +47,5 @@ htmlcov/
 # Misc
 *.tgz
 .cache/
+.vercel
+.env*.local
